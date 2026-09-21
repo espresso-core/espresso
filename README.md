@@ -18,7 +18,7 @@ Copyright (c) 2026-2026, The Espresso Project
 
 ## Introduction
 
-Espresso is a private and secure decentralised digital currency. You alone control your funds.
+Espresso (ESSO) is a private and secure decentralised digital currency. You alone control your funds.
 
 
 ## About this project

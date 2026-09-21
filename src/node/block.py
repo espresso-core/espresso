@@ -33,7 +33,7 @@ class Block:
             return "0" * 64
 
         # Has every item in the list, for the first time
-        level = [hash_it(str(item).encode()) for item in items]
+        level = [hash_it(str(item).encode()) for item in self.transactions]
         #level = [tx.hash() for tx in self.transactions]
 
         # Iterate over the list and continue hashing in pairs until only one remains
@@ -81,7 +81,6 @@ class Block:
             "previous_hash": self.previous_hash,
             "target": self.target,
             "nonce": self.nonce,
-            "staker_address": self.staker_address,
             "merkle_root": self.merkle_root,
             "hash": self.compute_hash(),
         }

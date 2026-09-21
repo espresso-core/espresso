@@ -17,4 +17,8 @@ def get_balance(address):
     })
 
 if __name__ == "__main__":
-    app.run()
+    try:
+        # Run on localhost (127.0.0.1) and custom port 8080
+        app.run(host='127.0.0.1', port=5000, debug=True)
+    except OSError as e:
+        print(f"Error starting server: {e}")

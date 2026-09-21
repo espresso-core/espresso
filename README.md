@@ -1,5 +1,7 @@
 # Espresso
 
+<img src="assets/logo_bean_1920x1920.png" alt="Logo" width="200">
+
 Copyright (c) 2026-2026, The Espresso Project  
 
 ## Table of Contents

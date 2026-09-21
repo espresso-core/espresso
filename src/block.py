@@ -88,7 +88,7 @@ class Block:
     def from_dict(d):
         return Block(
             d["index"],
-            [Transaction.from_dict(t) for t in d["transactions"]],
+            d["transactions"],
             d["previous_hash"],
             d["target"],
             d["timestamp"],

@@ -32,16 +32,20 @@ class Blockchain:
 
         # If this is indeed a valid nonce then add it to the chain and auto
         # create a new current block to fix the timestamp for it
-        is_valid = testNet.valid_proof(last_proof=last_proof, proof=curr_proof)
+        is_valid = self.valid_proof(last_proof=last_proof, proof=curr_proof)
+
         if is_valid:
             self.chain.append(curr_block)
             self.current_block = self.get_current_block()
             self.target_value = self.get_target_value(len(self.chain))
+            return True
+        else:
+            return False
 
     def get_target_value(self, block_index):
         # We can dynamically adjust the target value of zeroes here
         # but let's keep it at 4 for now
-        return 4
+        return 3
 
     
     def get_previous_hash(self):
@@ -55,7 +59,7 @@ class Blockchain:
         new_block = Block(index=num_blocks,
                           transactions=[],
                           previous_hash=self.get_previous_hash(),
-                          target= "0"*self.get_target_value(block_index=num_blocks),
+                          target=self.get_target_value(block_index=num_blocks),
                           timestamp=None,
                           nonce=0
                     )

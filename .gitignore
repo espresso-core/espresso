@@ -1,4 +1,5 @@
 *.ipynb
 *.spec
+*.lnk
 **/build
 **/dist

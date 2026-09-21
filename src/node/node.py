@@ -16,4 +16,5 @@ def get_balance(address):
         "balance": balance
     })
 
-app.run()
+if __name__ == "__main__":
+    app.run()

@@ -2,5 +2,6 @@
 *.spec
 *.lnk
 *.pyc
-**/build
-**/dist
+*.json
+**/wallet
+**/node

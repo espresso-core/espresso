@@ -4,7 +4,15 @@ import hashlib
 import binascii
 import requests
 
+from rpc import rpc_post
 from ecdsa import SigningKey, SECP256k1
+
+# ==========================================================
+# FUNCTIONS
+# ----------------------------------------------------------
+JSON_RPC_URL = "http://127.0.0.1:5000/jsonrpc"
+
+
 
 class ToolTip:
     """Small hover tooltip. tkinter has no built-in one."""
@@ -267,20 +275,9 @@ class Application:
         try:
         # Example endpoint:
         # Replace with your own cryptocurrency server
-        
-            url = f"http://127.0.0.1:5000/jsonrpc"
-            data = {
-                "jsonrpc": "2.0",
-                "method": "sso_getbalance",
-                "params": ["fb82a34bdd491703f4935cd963505af2dd9d0f8f"],
-                "id": 1
-            }
-            response = requests.post(url, json=data, headers={"Content-Type": "application/json"})
-            response.raise_for_status()
-            data=response.json()
 
-            print(data)
-            balance = data.get("result").get("balance")
+            data = rpc_post(JSON_RPC_URL, "sso_getbalance", ["fb82a34bdd491703f4935cd963505af2dd9d0f8f"])
+            balance = data.get("balance")
             
             self.lbl_balance_value.config(text=f"{balance}")
             

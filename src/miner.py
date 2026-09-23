@@ -8,8 +8,14 @@ import hashlib
 import requests
 import argparse
 
+from rpc import rpc_post
 from datetime import datetime
 from block import Block, hash_it
+
+# ==========================================================
+# FUNCTIONS
+# ----------------------------------------------------------
+JSON_RPC_URL = "http://127.0.0.1:5000/jsonrpc"
 
 # ==========================================================
 # FUNCTIONS
@@ -21,8 +27,8 @@ def valid_proof(last_proof, proof, target):
     guess = f'{last_proof}{proof}'.encode()
     guess_hash = hash_it(guess)
 
-
     return guess_hash, guess_hash[:target] == "0"*target
+
 
 import argparse
 
@@ -57,17 +63,11 @@ def get_block_template():
     """
     GET /getblocktemplate -> { "index": ..., "proof": ..., "previous_hash": ... }
     """
-    resp = requests.get(f"{NODE_URL}/getblocktemplate")
-    resp.raise_for_status()
-    return resp.json()
 
-def get_balance(address):
-    """
-    GET /balance/{adddress} -> { "address": ..., "balance": ...}
-    """
-    resp = requests.get(f"{NODE_URL}/balance/{address}")
-    resp.raise_for_status()
-    return resp.json()
+    result = rpc_post(JSON_RPC_URL, "sso_getblocktemplate", [])
+    return result
+
+
 
 def report_message(message):
 
@@ -85,6 +85,7 @@ def mine_block():
 
         # get block info from server and convert to Block object
         block_json = get_block_template()
+
         curr_block = Block(index=block_json.get("index"), 
                             transactions=block_json.get("transactions"), 
                             previous_hash=block_json.get("previous_hash"), 
@@ -110,17 +111,14 @@ def mine_block():
 
             if is_valid:
 
-                # send block back to server for a second check and add if still valid
-                payload = {"jsonrpc": "2.0",
-                        "method": "submitblock",
-                        "id": 1,
-                        "nonce": nonce}
-                resp = requests.post(f"{NODE_URL}/submitblock", json=json.dumps(payload))
-                resp.raise_for_status()
-                message = resp.json()
+                data = rpc_post(JSON_RPC_URL, "sso_submitblock", [nonce])
+                report_message(data)
 
-                report_message(message)
+                data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
+                print(f'Chain Height: {data}')
+
                 break
+
 
 if __name__ == "__main__":
     mine_block()

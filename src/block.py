@@ -18,7 +18,7 @@ class Block:
     from_dict
     """
 
-    def __init__(self, index, transactions, previous_hash, target, timestamp=None, nonce=0):
+    def __init__(self, index=0, transactions=[], previous_hash="", target=0, timestamp=None, nonce=0):
         self.index = index
         self.transactions = transactions  # list[Transaction]
         self.previous_hash = previous_hash

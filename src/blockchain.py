@@ -75,3 +75,11 @@ class Blockchain:
 
 
         return guess_hash, guess_hash[:self.target] == "0"*self.target
+
+
+    def get_chain_height(self):
+        """
+        Return the number of blocks in the current chain
+        """
+
+        return len(self.chain)

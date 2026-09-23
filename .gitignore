@@ -3,5 +3,8 @@
 *.lnk
 *.pyc
 *.json
+*.bat
+*.csv
 **/wallet
 **/node
+**/blockchain

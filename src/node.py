@@ -14,7 +14,7 @@ balances = {
     "def456": 100.0
 }
 
-@app.route("/new_block", methods=['GET'])
+@app.route("/getblocktemplate", methods=['GET'])
 def get_new_block():
     """
     Return the current unsolved block of the BlockChain in json format

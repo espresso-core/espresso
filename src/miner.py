@@ -3,6 +3,7 @@
 # ----------------------------------------------------------
 import sys
 import json
+import time
 import secrets
 import hashlib
 import requests
@@ -15,7 +16,7 @@ from block import Block, hash_it
 # ==========================================================
 # FUNCTIONS
 # ----------------------------------------------------------
-JSON_RPC_URL = "http://127.0.0.1:5000/jsonrpc"
+
 
 # ==========================================================
 # FUNCTIONS
@@ -57,7 +58,7 @@ print(f"ABOUT:     SeaMiner")
 print(f"POOL:      {NODE_URL}")
 print(f"ALGORITHM: {args.algo}")
 
-
+JSON_RPC_URL = f"{NODE_URL}/jsonrpc"
 
 def get_block_template():
     """
@@ -82,43 +83,51 @@ def mine_block():
 
     # Mine continously
     while True:
+        try:
+            # get block info from server and convert to Block object
+            block_json = get_block_template()
 
-        # get block info from server and convert to Block object
-        block_json = get_block_template()
+            curr_block = Block(index=block_json.get("index"), 
+                                transactions=block_json.get("transactions"), 
+                                previous_hash=block_json.get("previous_hash"), 
+                                target=block_json.get("target"), 
+                                timestamp=block_json.get("timestamp"), 
+                                nonce=block_json.get("nonce")
+                                )
 
-        curr_block = Block(index=block_json.get("index"), 
-                            transactions=block_json.get("transactions"), 
-                            previous_hash=block_json.get("previous_hash"), 
-                            target=block_json.get("target"), 
-                            timestamp=block_json.get("timestamp"), 
-                            nonce=block_json.get("nonce")
-                            )
+            # run the miner continuously
+            while True:
 
-        # run the miner continuously
-        while True:
+                # select a nonce to hash with
+                nonce = secrets.randbelow(pow(2, 32))
 
-            # select a nonce to hash with
-            nonce = secrets.randbelow(pow(2, 32))
+                # get information for the has to check if the proof is valid
+                last_proof = curr_block.to_dict().get("previous_hash")
+                curr_block.nonce = nonce
+                curr_proof = curr_block.compute_hash()
+                target = curr_block.target
 
-            # get information for the has to check if the proof is valid
-            last_proof = curr_block.to_dict().get("previous_hash")
-            curr_block.nonce = nonce
-            curr_proof = curr_block.compute_hash()
-            target = curr_block.target
+                # check if hash proof is valid according to block target (assigned by blockchain)
+                hash, is_valid = valid_proof(last_proof=last_proof, proof=curr_proof, target=target)
 
-            # check if hash proof is valid according to block target (assigned by blockchain)
-            hash, is_valid = valid_proof(last_proof=last_proof, proof=curr_proof, target=target)
+                if is_valid:
 
-            if is_valid:
+                    data = rpc_post(JSON_RPC_URL, "sso_submitblock", [nonce])
+                    report_message(data)
 
-                data = rpc_post(JSON_RPC_URL, "sso_submitblock", [nonce])
-                report_message(data)
+                    data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
+                    print(f'Chain Height: {data}')
 
-                data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
-                print(f'Chain Height: {data}')
+                    break
+        except Exception as e:
 
-                break
+            now = datetime.now()
+            timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
 
+            print(f"[{timestamp}] - Unable to connect. Retrying in 5 seconds.")
 
+            time.sleep(5)
+
+        
 if __name__ == "__main__":
     mine_block()

@@ -5,6 +5,7 @@
 *.json
 *.bat
 *.csv
+*.et
 **/wallet
 **/node
 **/blockchain

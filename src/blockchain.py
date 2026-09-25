@@ -9,7 +9,8 @@ class Blockchain:
         self.current_transactions = []
         self.target = 0
         self.current_block = None
-
+        self.mempool = []
+        
         # Create genesis block
         if len(self.chain) == 0:
             self.current_block = Block(index=0,

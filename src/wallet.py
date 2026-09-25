@@ -160,7 +160,6 @@ class Application:
                         self.val_wallet_address.delete(1.0, tk.END) # Clear previous content
                         self.val_wallet_address.insert(tk.END, line) # Insert new content
                         self.val_wallet_address.config(state=tk.DISABLED)
-                        self.val_wallet_address = line
 
                     if idx==1:
                         self.public_key = line
@@ -168,7 +167,6 @@ class Application:
                         self.val_public_key.delete(1.0, tk.END) # Clear previous content
                         self.val_public_key.insert(tk.END, line) # Insert new content
                         self.val_public_key.config(state=tk.DISABLED)
-                        self.val_public_key = line
 
                     if idx==2:
                         self.private_key = line
@@ -176,7 +174,6 @@ class Application:
                         self.val_private_key.delete(1.0, tk.END) # Clear previous content
                         self.val_private_key.insert(tk.END, line) # Insert new content
                         self.val_private_key.config(state=tk.DISABLED)
-                        self.val_private_key = line
 
         except FileNotFoundError:
             messagebox.showerror("Error", "File not found.")
@@ -209,7 +206,7 @@ class Application:
             content = self.private_key
             file.write(content)
             file.write("\n")
-                       
+            s           
             file.close()
             
             messagebox.showinfo("Success", "File saved successfully!")

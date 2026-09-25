@@ -79,7 +79,20 @@ def report_message(message):
 
     print(f"[{timestamp}] - Block Found - {status} - Reward ({reward})")
 
+def report_hashrate(elapsed_time, hash_count):
+
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    hash_rate = hash_count / elapsed_time
+
+    print(f"[{timestamp}] - Hash Rate - {round(hash_rate,2)} H/s.")
+
+
 def mine_block():
+
+    time_start = time.time()
+    last_report = time_start
+    hash_count = 0
 
     # Mine continously
     while True:
@@ -98,6 +111,8 @@ def mine_block():
             # run the miner continuously
             while True:
 
+                hash_count += 1
+
                 # select a nonce to hash with
                 nonce = secrets.randbelow(pow(2, 32))
 
@@ -115,10 +130,19 @@ def mine_block():
                     data = rpc_post(JSON_RPC_URL, "sso_submitblock", [nonce])
                     report_message(data)
 
-                    data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
-                    print(f'Chain Height: {data}')
+                    #data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
+                    #print(f'Chain Height: {data}')
 
                     break
+
+                timestamp = time.time()
+
+                if timestamp - last_report > 10:
+                    elapsed_time = timestamp - time_start
+                    last_report = timestamp
+
+                    report_hashrate(elapsed_time, hash_count)
+
         except Exception as e:
 
             now = datetime.now()

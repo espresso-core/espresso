@@ -10,12 +10,14 @@ class Blockchain:
         self.target = 0
         self.current_block = None
         self.mempool = []
-        
+
+        self.genesis_hash = "Clouds in my coffee."
+
         # Create genesis block
         if len(self.chain) == 0:
             self.current_block = Block(index=0,
-                              transactions=[],
-                              previous_hash="Clouds in my coffee.",
+                              transactions=self.mempool,
+                              previous_hash=self.genesis_hash,
                               target= self.get_target_value(block_index=0),
                               timestamp=time.time(),
                               nonce=0
@@ -38,7 +40,7 @@ class Blockchain:
         if is_valid:
             self.chain.append(curr_block)
             self.current_block = self.get_current_block()
-            self.target_value = self.get_target_value(len(self.chain))
+            self.target = self.get_target_value(len(self.chain))
             return True
         else:
             return False
@@ -48,17 +50,25 @@ class Blockchain:
         # but let's keep it at 4 for now
         return 3
 
+    def get_reward_value(self, block_index):
+        # We can dynamically adjust the reward value here but let's
+        # keep it at 25 for now.
+        return 25
+
     
     def get_previous_hash(self):
 
-        prev_block = self.chain[-1]
-        return prev_block.to_dict().get('hash')
+        if self.chain == []:
+            return self.genesis_hash
+        else:
+            prev_block = self.chain[-1]
+            return prev_block.to_dict().get('hash')
 
     def get_current_block(self):
 
         num_blocks = len(self.chain)
         new_block = Block(index=num_blocks,
-                          transactions=[],
+                          transactions=self.mempool,
                           previous_hash=self.get_previous_hash(),
                           target=self.get_target_value(block_index=num_blocks),
                           timestamp=None,
@@ -69,7 +79,7 @@ class Blockchain:
     
     def valid_proof(self, last_proof, proof):
         """
-        Validates the proof: does hash(last_proof, proof) start with 4 leading zeros?
+        Validates the proof: does hash(last_proof, proof) start with correct leading zeros?
         """
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hash_it(guess)
@@ -84,3 +94,13 @@ class Blockchain:
         """
 
         return len(self.chain)
+
+    def get_chain_block(self, block_num):
+        return self.chain[block_num]
+
+    def get_chain_info(self):
+
+        return {"chainheight": len(self.chain),
+                "target": self.target,
+                "previoushash": self.get_previous_hash()
+                }

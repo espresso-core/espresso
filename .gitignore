@@ -6,6 +6,7 @@
 *.bat
 *.csv
 *.et
+*.conf
 **/wallet
 **/node
 **/blockchain

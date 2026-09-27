@@ -49,26 +49,26 @@ parser.add_argument('-p','--pass', help='Worker password (default x)')
 # Parse arguments
 args = parser.parse_args(sys.argv[1:])
 
+HOST_SERVER = args.server
+HOST_PORT = args.port
 NODE_URL = f"{args.server}:{args.port}"  # change to your Flask node URL
 MINER_ADDRESS = "jesse-miner-001"   # any identifier for rewards
-
+WALLET_ADDRESS = args.user
 
 print(f"ABOUT:     SeaMiner")
 print(f"POOL:      {NODE_URL}")
 print(f"ALGORITHM: {args.algo}")
-
+print(f"WALLET:    {WALLET_ADDRESS}")
 
 JSON_RPC_URL = f"{NODE_URL}/jsonrpc"
-JSON_RPC_URL = f"http://{args.server}:{args.port}/jsonrpc"
-JSON_RPC_URL = "http://127.0.0.1:3333/jsonrpc"
+#JSON_RPC_URL = f"http://{HOST_SERVER}:{HOST_PORT}/jsonrpc"
+#JSON_RPC_URL = "http://127.0.0.1:3333/jsonrpc"
+
 
 def get_block_template():
     """
     GET /getblocktemplate -> { "index": ..., "proof": ..., "previous_hash": ... }
     """
-
-    result = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
-    result = rpc_post(JSON_RPC_URL, "sso_ping", [])
     result = rpc_post(JSON_RPC_URL, "sso_getblocktemplate", [])
 
     return result
@@ -103,7 +103,13 @@ def mine_block():
         try:
             # get block info from server and convert to Block object
             block_json = get_block_template()
-            print(block_json)
+
+
+            block_json['transactions'][0]['recipient'] = WALLET_ADDRESS
+            #cb_tx = block_json.get("transactions")[0]
+            #cb_tx['transaction']['recipient'] = WALLET_ADDRESS
+            #block_json['transactions'][0] = cb_tx
+
             curr_block = Block(index=block_json.get("index"), 
                                 transactions=block_json.get("transactions"), 
                                 previous_hash=block_json.get("previous_hash"), 
@@ -112,6 +118,7 @@ def mine_block():
                                 nonce=block_json.get("nonce")
                                 )
 
+            
             # run the miner continuously
             while True:
 
@@ -131,7 +138,8 @@ def mine_block():
 
                 if is_valid:
 
-                    data = rpc_post(JSON_RPC_URL, "sso_submitblock", [nonce])
+                    data = rpc_post(JSON_RPC_URL, "sso_submitblock", [curr_block.to_dict()])
+                    print(data)
                     report_message(data)
 
                     #data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
@@ -155,6 +163,9 @@ def mine_block():
             print(f"[{timestamp}] - Unable to connect. Retrying in 5 seconds.")
 
             time.sleep(5)
+
+
+
 
         
 if __name__ == "__main__":

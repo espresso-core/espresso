@@ -6,7 +6,6 @@ import time
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.current_transactions = []
         self.target = 0
         self.current_block = None
         self.mempool = []
@@ -75,6 +74,9 @@ class Blockchain:
                           nonce=0
                     )
 
+        # Clear the internal mempool since they were consumed
+        self.mempool = []
+
         return new_block
     
     def valid_proof(self, last_proof, proof):
@@ -95,8 +97,10 @@ class Blockchain:
 
         return len(self.chain)
 
+
     def get_chain_block(self, block_num):
         return self.chain[block_num]
+
 
     def get_chain_info(self):
 
@@ -104,3 +108,10 @@ class Blockchain:
                 "target": self.target,
                 "previoushash": self.get_previous_hash()
                 }
+
+
+    def mempool_empty(self):
+        if len(self.mempool) == 0:
+            return True
+        else:
+            return False

@@ -24,3 +24,45 @@ class Mempool():
 
         # deserialize all of the transaction (they're all unique now)
         self.transactions = [json.loads(tx) for tx in serialized_internal]
+
+    def add_transaction(self, tx):
+        """
+        Add a single transaction to the pool
+        """
+
+        if self.exists(tx):
+            return False
+        else:
+            self.transactions.append(tx)
+            return True
+
+    def add_transactions(self, tx_list):
+        """
+        Add a sequential list of transactions to the pool
+        """
+
+        for tx in tx_list:
+            self.add_transaction(tx)
+
+    def exists(self, tx):
+        """
+        Check if a transaction already exists
+        """
+        
+        hash_tx = json.dumps(tx)
+        hash_txs = [json.dumps(tx) for tx in self.transactions]
+
+        if hash_tx in hash_txs:
+            return True
+        else:
+            return False
+
+    def select_transactions(self, n):
+
+        # Just grab the first n, however they're ordered and optmized this later
+        actual_n = min(len(self.transactions), n)
+
+        selected_txs = self.transactions[:actual_n]
+        self.transactions = self.transactions[actual_n:]
+
+        return selected_txs

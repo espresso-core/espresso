@@ -77,7 +77,7 @@ class Block:
         return {
             "index": self.index,
             "timestamp": self.timestamp,
-            "transactions": [tx.to_dict() for tx in self.transactions],
+            "transactions": [tx for tx in self.transactions],
             "previous_hash": self.previous_hash,
             "target": self.target,
             "nonce": self.nonce,

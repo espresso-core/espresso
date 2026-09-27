@@ -49,7 +49,6 @@ parser.add_argument('-p','--pass', help='Worker password (default x)')
 # Parse arguments
 args = parser.parse_args(sys.argv[1:])
 
-
 NODE_URL = f"{args.server}:{args.port}"  # change to your Flask node URL
 MINER_ADDRESS = "jesse-miner-001"   # any identifier for rewards
 
@@ -58,16 +57,21 @@ print(f"ABOUT:     SeaMiner")
 print(f"POOL:      {NODE_URL}")
 print(f"ALGORITHM: {args.algo}")
 
+
 JSON_RPC_URL = f"{NODE_URL}/jsonrpc"
+JSON_RPC_URL = f"http://{args.server}:{args.port}/jsonrpc"
+JSON_RPC_URL = "http://127.0.0.1:3333/jsonrpc"
 
 def get_block_template():
     """
     GET /getblocktemplate -> { "index": ..., "proof": ..., "previous_hash": ... }
     """
 
+    result = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])
+    result = rpc_post(JSON_RPC_URL, "sso_ping", [])
     result = rpc_post(JSON_RPC_URL, "sso_getblocktemplate", [])
-    return result
 
+    return result
 
 
 def report_message(message):
@@ -99,7 +103,7 @@ def mine_block():
         try:
             # get block info from server and convert to Block object
             block_json = get_block_template()
-
+            print(block_json)
             curr_block = Block(index=block_json.get("index"), 
                                 transactions=block_json.get("transactions"), 
                                 previous_hash=block_json.get("previous_hash"), 
@@ -144,7 +148,7 @@ def mine_block():
                     report_hashrate(elapsed_time, hash_count)
 
         except Exception as e:
-
+            print(e)
             now = datetime.now()
             timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
 

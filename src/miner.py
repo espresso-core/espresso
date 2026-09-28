@@ -105,10 +105,9 @@ def mine_block():
             block_json = get_block_template()
 
 
-            block_json['transactions'][0]['recipient'] = WALLET_ADDRESS
-            #cb_tx = block_json.get("transactions")[0]
-            #cb_tx['transaction']['recipient'] = WALLET_ADDRESS
-            #block_json['transactions'][0] = cb_tx
+            cb_tx = block_json.get("transactions")[0]
+            cb_tx['transaction']['recipient'] = WALLET_ADDRESS
+            block_json['transactions'][0] = cb_tx
 
             curr_block = Block(index=block_json.get("index"), 
                                 transactions=block_json.get("transactions"), 
@@ -139,7 +138,6 @@ def mine_block():
                 if is_valid:
 
                     data = rpc_post(JSON_RPC_URL, "sso_submitblock", [curr_block.to_dict()])
-                    print(data)
                     report_message(data)
 
                     #data = rpc_post(JSON_RPC_URL, "sso_getchainheight", [])

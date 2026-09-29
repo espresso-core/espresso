@@ -95,3 +95,12 @@ class Peerpool():
         Delete peer record from valid list
         """
         del(self.valid_peers[address])
+
+
+    def update_peer_field(self, address, field_name, value):
+        """
+        Update a field value in peer data record
+        """
+        peer_data = self.valid_peers[address]
+        peer_data[field_name] = value
+        self.valid_peers[address] = peer_data

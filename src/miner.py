@@ -59,6 +59,7 @@ print(f"ABOUT:     SeaMiner")
 print(f"POOL:      {NODE_URL}")
 print(f"ALGORITHM: {args.algo}")
 print(f"WALLET:    {WALLET_ADDRESS}")
+print(f"===================================================")
 
 JSON_RPC_URL = f"{NODE_URL}/jsonrpc"
 #JSON_RPC_URL = f"http://{HOST_SERVER}:{HOST_PORT}/jsonrpc"

@@ -36,10 +36,26 @@ class Blockchain:
 
         new_block = Block.from_dict(new_block_dict)
 
+        # Update balances to reflect new coin spend
+        txs = new_block_dict.get('transactions')
+        for tx in txs:
+            SENDER = tx.get('transaction').get("sender")
+            RECIPIENT = tx.get('transaction').get("recipient")
+            AMOUNT = tx.get('transaction').get("amount")
+
+            if RECIPIENT in self.balances.keys():
+                self.balances[RECIPIENT] += AMOUNT
+            else:
+                self.balances[RECIPIENT] = AMOUNT
+
+            if SENDER != "COIN_BASE":
+                self.balances[SENDER] -= AMOUNT
+
+
         self.chain.append(new_block)                           # add it to chain, its valid
-        self.save_block_to_disk(new_block_dict)                     # save it to disk, for backup
-        self.current_block = self.get_current_block()           # get new current block
-        #self.target = self.get_target_value(len(self.chain))    # set the new target difficult
+        self.save_block_to_disk(new_block_dict)                # save it to disk, for backup
+        self.current_block = self.get_current_block()          # get new current block
+        self.target = self.get_target_value(len(self.chain))   # set the new target difficult
             
         return True
 
@@ -105,13 +121,51 @@ class Blockchain:
         return len(self.chain)
 
 
-    def get_chain_block(self, block_num):
-        return self.chain[block_num]
+    def get_block(self, block_num):
+        """
+        Returns the dict representation of a block.
+        Checks memory first then resorts to disk
+        """
+        # Go through all blocks on the in-mem chain
+        for block_dict in self.chain:
+            if block_dict.get("index") == block_num:
+                return block_dict
+
+        return self.get_block_from_disk(block_num)
+
+
+
+    def get_block_from_disk(self, block_num):
+        try:
+            with open(self.block_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:  # Skip empty lines
+                        continue
+                    try:
+                        item = json.loads(line)
+                        #print(item)  # Process the JSON object
+
+                        if item.get("index") == block_num:
+                            return item
+                    except json.JSONDecodeError as e:
+                        print(f"Skipping invalid JSON line: {e}")
+
+            # block definitely not on disk
+            return {}
+        
+        except FileNotFoundError:
+            print(f"File not found: {self.block_file}")
+
+
+    def get_block_field(self, block_num, field_name):
+        block = self.get_block(block_num)
+        return block.get(field_name)
 
 
     def get_chain_info(self):
 
-        return {"chainheight": len(self.chain),
+        return {"chainheight": self.get_chain_height(),
                 "target": self.target,
                 "previoushash": self.get_previous_hash(),
                 "reward": self.get_reward_value()
@@ -143,3 +197,6 @@ class Blockchain:
                 'signature': '',
                 'public_key': ''
                 }
+
+    def get_balance(self, wallet_address):
+        return self.balances.get(wallet_address,0)

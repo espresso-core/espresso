@@ -6,9 +6,20 @@ class Peerpool():
     def __init__(self):
         self.valid_peers = {}
         self.pending_peers = {}
+        self.banned_peers = {}
 
         #{ADDRESS: {'last_contact': time.time(), 'public_key': "AAAA"}
             
+    def add_banned_peer(self, data: dict):
+        self.banned_peers.update(data)
+        self.remove_valid_peer(data)
+
+
+    def remove_valid_peer(self, data:dict):
+        address, peer_data = data
+        del(self.valid_peers[address])
+
+
     def add_pending_peer(self, data: dict):
 
         if len(data)==1:
@@ -17,6 +28,7 @@ class Peerpool():
             for address, peer_data in data.items():
 
                 if (address not in self.valid_peers.keys()) & \
+                (address not in self.banned_peers.keys()) & \
                 (address not in self.pending_peers.keys()):
 
                     self.pending_peers.update(data)
